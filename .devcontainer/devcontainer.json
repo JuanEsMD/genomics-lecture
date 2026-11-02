@@ -3,9 +3,9 @@
     "name": "genome",
     "dockerfile": "Dockerfile"
   },
+  "remoteUser": "mambauser",
   "containerEnv": {
-    "XDG_RUNTIME_DIR": "/home/vscode/.xdg_runtime"
+    "XDG_RUNTIME_DIR": "/home/mambauser/.xdg_runtime"
   },
-  "postCreateCommand": "conda init",
-  "postCreateCommand": "mkdir -p /home/vscode/.xdg_runtime && chmod 0700 /home/vscode/.xdg_runtime"
+  "postCreateCommand": "mkdir -p /home/mambauser/.xdg_runtime && chmod 0700 /home/mambauser/.xdg_runtime"
 }

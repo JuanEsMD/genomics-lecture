@@ -16,5 +16,3 @@ dependencies:
   - fasttree
   - blast
   - fastani
-  - dfast
-  - mafft

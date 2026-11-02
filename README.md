@@ -30,10 +30,6 @@ gitpod:~$ mummerplot --png -R reference.fasta -Q assembly_short/assembly.fasta -
 ```
 
 ```bash
-gitpod:~$ dfast -g assembly_short/assembly.fasta -o assembly_short/dfast
-```
-
-```bash
 gitpod:~$ mafft --localpair 16s.fasta > 16s_mafft.fasta
 ```
 
