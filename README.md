@@ -16,22 +16,22 @@ https://tinyurl.com/y7b22fsb
 
 ## Command list
 ```bash
-gitpod:~$ unicycler -1 short_reads_1.fastq.gz -2 short_reads_2.fastq.gz -t 4 -o assembly_short
+gitpod:~$ spades.py --isolate -1 short_reads_1.fastq.gz -2 short_reads_2.fastq.gz -t 4 -o assembly_short
 gitpod:~$ cp short_reads_1.fastq.gz check.fastq.gz
 gitpod:~$ gunzip check.fastq.gz
 ```
 
 ```bash
-gitpod:~$ Bandage image assembly_short/assembly.gfa assembly_short/assembly.png
+gitpod:~$ Bandage image assembly_short/assembly_graph_with_scaffolds.gfa assembly_short/assembly.png
 ```
 
 ```bash
-gitpod:~$ seqkit stat assembly_short/assembly.fasta
+gitpod:~$ seqkit stat assembly_short/scaffolds.fasta
 ```
 
 ```bash
-gitpod:~$ nucmer reference.fasta assembly_short/assembly.fasta --delta short.delta
-gitpod:~$ mummerplot --png -R reference.fasta -Q assembly_short/assembly.fasta --layout short.delta -p short
+gitpod:~$ nucmer reference.fasta assembly_short/scaffolds.fasta --delta short.delta
+gitpod:~$ mummerplot --png -R reference.fasta -Q assembly_short/scaffolds.fasta --layout short.delta -p short
 ```
 
 ```bash
@@ -44,8 +44,7 @@ gitpod:~$ fasttree -nt 16s_mafft.fasta > 16s_mafft.nwk
 
 ```bash
 gitpod:~$ gunzip SILVA_138.2_SSURef_NR99_tax_silva.fasta.gz
-gitpod:~$ makeblastdb -in SILVA_138.2_SSURef_NR99_tax_silva.fasta -dbtype nucl 
-gitpod:~$ blastn -db SILVA_138.2_SSURef_NR99_tax_silva.fasta -query 16s.fasta -outfmt 6 > blast.txt
+gitpod:~$ vsearch --usearch_global 16s.fasta --db SILVA_138.2_SSURef_NR99_tax_silva.fasta --id 0.9 --maxaccepts 5 --threads 4 --blast6out blast.txt
 ```
 
 ```bash

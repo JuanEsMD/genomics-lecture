@@ -7,9 +7,9 @@ dependencies:
   - minimap2
   - samtools
   - flye
-  - unicycler
+  - spades
   - mummer4
   - mafft
   - fasttree
-  - blast
+  - vsearch
   - fastani
