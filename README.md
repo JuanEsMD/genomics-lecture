@@ -2,6 +2,11 @@
 ## Gitpod
 Access to [gitpod website](https://www.gitpod.io/gitpod-or-classic) and activate a container from gitpod via https://github.com/ymatsumoto/genomics-lecture
 
+## Dev Container (prebuilt image)
+Students: copy [student/.devcontainer/devcontainer.json](student/.devcontainer/devcontainer.json) to `.devcontainer/devcontainer.json` in your folder and run "Dev Containers: Reopen in Container" in VS Code. The image `ghcr.io/ymatsumoto/genomics-lecture` is pulled (amd64 only). To pin a version, replace `latest` with a date tag such as `20261102`.
+
+Instructors: pushing changes under `.devcontainer/` to `main` triggers `.github/workflows/build-image.yml`, which builds and pushes the image. After the first push, set the package visibility to Public (Package settings) so students can pull without login.
+
 ## Get files for demo
 ### dataset 1:
 https://tinyurl.com/k59en9pp

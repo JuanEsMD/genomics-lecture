@@ -1,6 +1,6 @@
 {
+  "name": "genome",
   "build": {
-    "name": "genome",
     "dockerfile": "Dockerfile"
   },
   "remoteUser": "mambauser",
