@@ -1,11 +1,4 @@
 {
   "name": "genome",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "remoteUser": "mambauser",
-  "containerEnv": {
-    "XDG_RUNTIME_DIR": "/home/mambauser/.xdg_runtime"
-  },
-  "postCreateCommand": "mkdir -p /home/mambauser/.xdg_runtime && chmod 0700 /home/mambauser/.xdg_runtime"
+  "image": "ghcr.io/ymatsumoto/genomics-lecture:latest"
 }
