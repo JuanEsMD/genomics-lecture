@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "image/**"
+      - ".devcontainer/Dockerfile"
+      - ".devcontainer/genome.yml"
       - ".github/workflows/build-image.yml"
   workflow_dispatch:
 
@@ -39,8 +40,8 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: image
-          file: image/Dockerfile
+          context: .devcontainer
+          file: .devcontainer/Dockerfile
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}

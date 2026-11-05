@@ -8,6 +8,7 @@ dependencies:
   - samtools
   - flye
   - spades
+  - unicycler
   - mummer4
   - mafft
   - fasttree
