@@ -1,0 +1,294 @@
+
+Starting Unicycler (2026-11-11 01:22:14)
+----------------------------------------
+    Welcome to Unicycler, an assembly pipeline for bacterial genomes. Since you provided both short and long reads, Unicycler will perform a hybrid assembly. It will first use SPAdes to make a short-read assembly graph, and then it will use various methods to scaffold that graph with the long reads.
+    For more information, please see https://github.com/rrwick/Unicycler
+
+Command: /opt/conda/bin/unicycler -1 short_reads_1.fastq.gz -2 short_reads_2.fastq.gz --long long_reads_low_depth.fastq.gz -t 4 -o assembly_hybrid_low
+
+Unicycler version: v0.5.1
+Using 4 threads
+
+Making output directory:
+  /workspaces/genomics-lecture/dataset1/assembly_hybrid_low
+
+Dependencies:
+  Program       Version   Status
+  spades.py     4.3.0     good  
+  racon         1.5.0     good  
+  makeblastdb   2.17.0+   good  
+  tblastn       2.17.0+   good  
+
+
+Choosing k-mer range for assembly (2026-11-11 01:22:15)
+-------------------------------------------------------
+    Unicycler chooses a k-mer range for SPAdes based on the length of the input reads. It uses a wide range of many k-mer sizes to maximise the chance of finding an ideal assembly.
+
+SPAdes maximum k-mer: 127
+Median read length: 125
+K-mer range: 25, 49, 67, 81, 93, 103, 111, 119
+
+
+SPAdes assemblies (2026-11-11 01:22:15)
+---------------------------------------
+    Unicycler now uses SPAdes to assemble the short reads. It scores the assembly graph for each k-mer using the number of contigs (fewer is better) and the number of dead ends (fewer is better). The score function is 1/(c*(d+2)), where c is the contig count and d is the dead end count.
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25 --threads 4 --gfa11 --isolate -1 /workspaces/genomics-lecture/dataset1/short_reads_1.fastq.gz -2 /workspaces/genomics-lecture/dataset1/short_reads_2.fastq.gz -m 1024
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25,49 --threads 4 --gfa11 --restart-from k25 -m 1024
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25,49,67 --threads 4 --gfa11 --restart-from k49 -m 1024
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25,49,67,81 --threads 4 --gfa11 --restart-from k67 -m 1024
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25,49,67,81,93 --threads 4 --gfa11 --restart-from k81 -m 1024
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25,49,67,81,93,103 --threads 4 --gfa11 --restart-from k93 -m 1024
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25,49,67,81,93,103,111 --threads 4 --gfa11 --restart-from k103 -m 1024
+
+spades.py -o /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly -k 25,49,67,81,93,103,111,119 --threads 4 --gfa11 --restart-from k111 -m 1024
+
+K-mer   Contigs   Dead ends   Score   
+   25       639           0   7.82e-04
+   49       370           0   1.35e-03
+   67       300           0   1.67e-03
+   81       273           0   1.83e-03
+   93       258           0   1.94e-03 <-best
+  103       247           2   1.01e-03
+  111       218           5   6.55e-04
+  119        44          52   4.21e-04
+
+Read depth filter: removed 0 contigs totalling 0 bp
+Deleting /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/spades_assembly/
+
+
+Determining graph multiplicity (2026-11-11 01:23:54)
+----------------------------------------------------
+    Multiplicity is the number of times a sequence occurs in the underlying sequence. Single-copy contigs (those with a multiplicity of one, occurring only once in the underlying sequence) are particularly useful.
+
+Saving /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/002_depth_filter.gfa
+
+
+Cleaning graph (2026-11-11 01:23:54)
+------------------------------------
+    Unicycler now performs various cleaning procedures on the graph to remove overlaps and simplify the graph structure. The end result is a graph ready for bridging.
+
+Graph overlaps removed
+
+Removed zero-length segments:
+    155, 156, 160, 161, 162, 163, 165, 167, 168, 169, 172, 176, 182, 188, 192, 196, 201, 202, 203, 204, 210, 212, 214, 229, 232, 243
+
+Removed zero-length segments:
+    164, 171, 173, 174, 256
+
+Removed zero-length segments:
+    247
+
+Merged small segments:
+    238, 239, 240, 242, 245, 248, 251, 252, 253
+
+Saving /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/003_overlaps_removed.gfa
+
+    Unicycler now selects a set of anchor contigs from the single-copy contigs. These are the contigs which will be connected via bridges to form the final assembly.
+
+38 anchor segments (154,952 bp) out of 217 total segments (187,253 bp)
+
+
+Creating SPAdes contig bridges (2026-11-11 01:23:54)
+----------------------------------------------------
+    SPAdes uses paired-end information to perform repeat resolution (RR) and produce contigs from the assembly graph. SPAdes saves the graph paths corresponding to these contigs in the contigs.paths file. When one of these paths contains two or more anchor contigs, Unicycler can create a bridge from the path.
+
+                                                                                                       Bridge
+Start                                           Path                                          End     quality
+  -18                                           -143                                          33         63.2
+  -11                                           119                                           32         57.1
+    1   158 -> 149 -> -100 -> 106 -> -201 -> 124 -> 114 -> -171 -> 135 -> 81 -> -211 -> 104   20         18.8
+    7                                181 -> -116 -> 175 -> 123                                23         63.0
+   13                             -116 -> -176 -> 123 -> 54 -> 90                             40         20.0
+   17                                           119                                           -24        51.9
+   28                                86 -> -172 -> 129 -> -148                                35         62.1
+   31                                   -113 -> -141 -> -60                                   14         31.3
+
+
+Creating loop unrolling bridges (2026-11-11 01:23:54)
+-----------------------------------------------------
+    When a SPAdes contig path connects an anchor contig with the middle contig of a simple loop, Unicycler concludes that the sequences are contiguous (i.e. the loop is not a separate piece of DNA). It then uses the read depth of the middle and repeat contigs to guess the number of times to traverse the loop and makes a bridge.
+
+No loop unrolling bridges made
+
+
+Loading reads (2026-11-11 01:23:54)
+-----------------------------------
+30 / 30 (100.0%) - 261,649 bp
+
+
+Assembling contigs and long reads with miniasm (2026-11-11 01:23:54)
+--------------------------------------------------------------------
+    Unicycler uses miniasm to construct a string graph assembly using both the short read contigs and the long reads. It will then use the resulting string graph to produce bridges between contigs. This method requires decent coverage of long reads and therefore may not be fruitful if long reads are sparse. However, it does not rely on the short read assembly graph having good connectivity and is able to bridge an assembly graph even when it contains many dead ends.
+    Unicycler uses two types of "reads" as assembly input: anchor contigs from the short-read assembly and actual long reads which overlap two or more of these contigs. It then assembles them with miniasm.
+
+Aligning long reads to graph using minimap
+
+Saving to /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/miniasm_assembly/01_assembly_reads.fastq:
+  37 short-read contigs
+  29 long reads
+
+Finding overlaps with minimap... 
+success
+  64 overlaps
+
+Assembling reads with miniasm... 
+empty result
+
+
+Creating simple long read bridges (2026-11-11 01:23:54)
+-------------------------------------------------------
+    Unicycler uses long read alignments (from minimap) to resolve simple repeat structures in the graph. This takes care of some "low-hanging fruit" of the graph simplification.
+
+Aligning long reads to graph using minimap
+
+    Two-way junctions are defined as cases where two graph contigs (A and B) join together (C) and then split apart again (D and E). This usually represents a simple 2-copy repeat, and there are two possible options for its resolution: (A->C->D and B->C->E) or (A->C->E and B->C->D). Each read which spans such a junction gets to "vote" for option 1, option 2 or neither. Unicycler creates a bridge at each junction for the most voted for option.
+
+                                                    Op. 1   Op. 2   Neither   Final    Bridge
+Junction        Option 1             Option 2       votes   votes     votes     op.   quality
+     119   -11 -> 119 -> -24,   -11 -> 119 -> 32,       0       4         0       2      82.1
+            17 -> 119 -> 32      17 -> 119 -> -24                                            
+
+    Simple loops are parts of the graph where two contigs (A and B) are connected via a repeat (C) which loops back to itself (via D). It is possible to traverse the loop zero times (A->C->B), one time (A->C->D->C->B), two times (A->C->D->C->D->C->B), etc. Long reads which span the loop inform which is the correct number of times through. In this step, such reads are found and each is aligned against alternative loop counts. A reads casts its "vote" for the loop count it agrees best with, and Unicycler creates a bridge using the most voted for count.
+
+No suitable simple loops present
+
+
+Determining low score threshold (2026-11-11 01:23:54)
+-----------------------------------------------------
+    Before conducting semi-global alignment of the long reads to the assembly graph, Unicycler must determine a minimum alignment score threshold such that nonsense alignments are excluded. To choose a threshold automatically, it examines alignments between random sequences and selects a score a few standard deviations above the mean.
+
+Automatically choosing a threshold using random alignment scores.
+
+Random alignment mean score: 61.66
+         standard deviation:  1.31
+        Low score threshold: 61.66 + (7 x 1.31) = 70.86
+
+
+Aligning reads (2026-11-11 01:23:54)
+------------------------------------
+30 / 30 (100.0%)
+
+
+Read alignment summary (2026-11-11 01:23:59)
+--------------------------------------------
+Total read count:             30
+Fully aligned reads:           3
+Partially aligned reads:      27
+Unaligned reads:               0
+Total bases aligned:     201,236 bp
+Mean alignment identity:      84.6%
+
+Deleting /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/read_alignment/
+
+
+Building long read bridges (2026-11-11 01:23:59)
+------------------------------------------------
+    Unicycler uses the long read alignments to produce bridges between anchor segments. These bridges can be formed using as few as one long read, giving Unicycler the ability to bridge the graph even when long-read depth is low.
+
+       Start -> end    Best path                                 Quality
+ 1/19    28 -> 24      86, -172, 129, -148, 35, -71, -199, 64,    41.651
+                       210, -48, 83, -156                               
+ 2/19   -22 -> 28      -147, 44, -204, -56, -214, -87, -191,      66.625
+                       80, 118, -138, 53, -179, -99, 122, -102,         
+                       66, 136                                          
+ 3/19    22 -> -15     -152, -45, -157, 26, -120, -162, -107,     61.176
+                       46, -49, 107, -95, -96                           
+ 4/19    33 -> 34      182, 105, 42, -130, -198, 174, 167, 110,   57.118
+                       -217, -79, 39                                    
+ 5/19    38 -> -27     177, 84, -180, -136, -66, 102, -122, 99,   58.017
+                       -178, -59, 105, 42, -130, -203, -161,            
+                       110, -217, -79                                   
+ 6/19    23 -> -5      -75, 50, 206, -47, 195, 76, -73, 57, 184   63.871
+ 7/19    26 -> -15     -120, -162, -107, 46, -49, 107, -95, -96   60.674
+ 8/19    -2 -> 29      177, 84, -59, 91, 165, 52, 186, -88,       58.973
+                       -68, 160, -89, 86, -115, -148                    
+ 9/19    35 -> 24      -71, -199, 64, 210, -48, 83, -156          47.909
+10/19    34 -> 36      -30                                        52.723
+11/19    -4 -> 17      -57, -77, 133, 78                          70.292
+12/19    37 -> -29     168, 45, 152, 134                          50.481
+13/19    28 -> 35      86, -172, 129, -148                        52.937
+14/19    24 -> -17     -119                                       41.822
+15/19   -11 -> 32      119                                        49.059
+16/19   -18 -> 33      -143                                       30.238
+17/19    22 -> 26      -152, -45, -157                            62.323
+18/19    18 -> -2      142, -120, 153, 183, 93, -150, 155, 82,    72.146
+                       -140, -127, 132, 158, 61, 114, 173, 135,         
+                       63                                               
+19/19    -1 -> 27      41, -139, -127, -131, 158, 149, -101,      64.846
+                       106, -201, 124, 114, -126, 81, 212, 104,         
+                       67, 128, 70, -166, 125, -109, -117, -143         
+
+
+Applying bridges (2026-11-11 01:24:05)
+--------------------------------------
+    Unicycler now applies to the graph in decreasing order of quality. This ensures that when multiple, contradictory bridges exist, the most supported option is used.
+
+Bridge type        Start -> end   Path                                       Quality
+simple long read    -11 -> 32     119                                         90.353
+simple long read     17 -> -24    119                                         82.055
+long read            18 -> -2     142, -120, 153, 183, 93, -150, 155, 82,     72.146
+                                  -140, -127, 132, 158, 61, 114, 173, 135,          
+                                  63                                                
+long read            -4 -> 17     -57, -77, 133, 78                           70.292
+long read           -22 -> 28     -147, 44, -204, -56, -214, -87, -191,       66.625
+                                  80, 118, -138, 53, -179, -99, 122, -102,          
+                                  66, 136                                           
+long read            -1 -> 27     41, -139, -127, -131, 158, 149, -101,       64.846
+                                  106, -201, 124, 114, -126, 81, 212, 104,          
+                                  67, 128, 70, -166, 125, -109, -117, -143          
+long read            23 -> -5     -75, 50, 206, -47, 195, 76, -73, 57, 184    63.871
+long read            22 -> 26     -152, -45, -157                             62.323
+long read            26 -> -15    -120, -162, -107, 46, -49, 107, -95, -96    61.176
+long read            -2 -> 29     177, 84, -59, 91, 165, 52, 186, -88,        58.973
+                                  -68, 160, -89, 86, -115, -148                     
+long read            38 -> -27    177, 84, -180, -136, -66, 102, -122, 99,    58.017
+                                  -178, -59, 105, 42, -130, -203, -161,             
+                                  110, -217, -79                                    
+long read            33 -> 34     182, 105, 42, -130, -198, 174, 167, 110,    57.118
+                                  -217, -79, 39                                     
+long read            28 -> 35     86, -172, 129, -148                         52.937
+long read            34 -> 36     -30                                         52.723
+long read            37 -> -29    168, 45, 152, 134                           50.481
+long read            35 -> 24     -71, -199, 64, 210, -48, 83, -156           47.909
+long read           -18 -> 33     -143                                        30.238
+SPAdes                7 -> 23     181, -116, 175, 123                         62.992
+SPAdes               31 -> 14     -113, -141, -60                             31.266
+SPAdes               13 -> 40     -116, -176, 123, 54, 90                     20.024
+SPAdes                1 -> 20     158, 149, -100, 106, -201, 124, 114,        18.783
+                                  -171, 135, 81, -211, 104                          
+
+Saving /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/004_bridges_applied.gfa
+
+
+Bridged assembly graph (2026-11-11 01:24:05)
+--------------------------------------------
+    The assembly is now mostly finished and no more structural changes will be made. Ideally the assembly graph should now have one contig per replicon and no erroneous contigs (i.e. a complete assembly). If there are more contigs, then the assembly is not complete.
+
+Saving /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/005_final_clean.gfa
+
+Component   Segments   Links   Length    N50      Longest segment   Status    
+    total        106     130   212,814   30,934            47,202             
+        1        105     129   207,661   30,934            47,202   incomplete
+        2          1       1     5,153    5,153             5,153     complete
+
+
+Rotating completed replicons (2026-11-11 01:24:05)
+--------------------------------------------------
+    Any completed circular contigs (i.e. single contigs which have one link connecting end to start) can have their start position changed without altering the sequence. For consistency, Unicycler now searches for a starting gene (dnaA or repA) in each such contig, and if one is found, the contig is rotated to start with that gene on the forward strand.
+
+Segment   Length   Depth   Starting gene   Position   Strand   Identity   Coverage
+     10    5,153   4.18x   none found                                             
+
+
+Assembly complete (2026-11-11 01:24:14)
+---------------------------------------
+Saving /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/assembly.gfa
+Saving /workspaces/genomics-lecture/dataset1/assembly_hybrid_low/assembly.fasta
+
